@@ -51,7 +51,37 @@ export function buildPayload(fields, connType) {
 // ─── DOM (browser only) ──────────────────────────────────────────────────────
 
 const IP_FIELDS = ['ip', 'mascara', 'gateway'];
+const STORAGE_KEY = 'wedo_onboarding_draft';
+const SAVEABLE_FIELDS = ['empresa', 'nombre', 'apellido', 'email', 'telefono', 'provincia', 'ciudad', 'ip', 'mascara', 'gateway', 'ssid'];
 let currentConn = 'DHCP';
+
+function saveDraft() {
+  const draft = { conn: currentConn };
+  SAVEABLE_FIELDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) draft[id] = el.value;
+  });
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
+}
+
+function restoreDraft() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return;
+  try {
+    const draft = JSON.parse(raw);
+    SAVEABLE_FIELDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el && draft[id]) el.value = draft[id];
+    });
+    if (draft.conn) setConn(draft.conn);
+  } catch {
+    localStorage.removeItem(STORAGE_KEY);
+  }
+}
+
+function clearDraft() {
+  localStorage.removeItem(STORAGE_KEY);
+}
 
 function mark(id, ok) {
   const el = document.getElementById(id);
@@ -136,6 +166,7 @@ async function submitForm() {
     const data = await res.json();
 
     if (data.success) {
+      clearDraft();
       document.getElementById('email-confirm').textContent = fields.email;
       document.getElementById('form-body').style.display = 'none';
       document.getElementById('success-box').style.display = 'block';
@@ -155,8 +186,15 @@ async function submitForm() {
 
 if (typeof document !== 'undefined') {
   document.querySelectorAll('.conn-tab').forEach(tab =>
-    tab.addEventListener('click', () => setConn(tab.dataset.conn))
+    tab.addEventListener('click', () => { setConn(tab.dataset.conn); saveDraft(); })
   );
   document.getElementById('pw-btn').addEventListener('click', togglePw);
   document.getElementById('submit-btn').addEventListener('click', submitForm);
+
+  SAVEABLE_FIELDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', saveDraft);
+  });
+
+  restoreDraft();
 }

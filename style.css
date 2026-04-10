@@ -1,0 +1,79 @@
+:root {
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  --border-radius-lg: 12px;
+  --border-radius-md: 8px;
+  --color-background-primary: #ffffff;
+  --color-background-secondary: #f7f7f8;
+  --color-text-primary: #1a1a1a;
+  --color-text-secondary: #6b6f72;
+  --color-text-tertiary: #9ea1a2;
+  --color-border-tertiary: #e0e0e0;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #f0f0f0;
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 2rem 1rem;
+  font-family: var(--font-sans);
+}
+
+.wrap { max-width: 640px; width: 100%; padding-bottom: 2.5rem; }
+
+.header { background: #24272A; border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0; padding: 20px 24px 18px; display: flex; align-items: center; justify-content: space-between; }
+.logo-text { font-size: 26px; font-weight: 700; letter-spacing: 0.18em; color: #EE7623; line-height: 1; }
+.logo-sub { font-size: 11px; color: #9EA1A2; letter-spacing: 0.12em; text-transform: uppercase; margin-top: 3px; }
+.header-tag { font-size: 11px; color: #9EA1A2; letter-spacing: 0.08em; text-transform: uppercase; }
+
+.body { border: 0.5px solid #E0E0E0; border-top: none; border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg); padding: 24px; background: var(--color-background-primary); }
+
+.section-title { font-size: 11px; font-weight: 500; color: #EE7623; text-transform: uppercase; letter-spacing: 0.1em; margin: 1.75rem 0 0.75rem; padding-bottom: 6px; border-bottom: 1.5px solid #EE7623; }
+.section-title:first-child { margin-top: 0; }
+
+.field { margin-bottom: 1rem; }
+.field label { display: block; font-size: 13px; color: var(--color-text-secondary); margin-bottom: 4px; }
+.req { color: #EE7623; margin-left: 2px; }
+.field input, .field select {
+  width: 100%; padding: 9px 11px; font-size: 14px;
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-md);
+  background: var(--color-background-primary);
+  color: var(--color-text-primary); outline: none; transition: border-color 0.15s;
+}
+.field input:focus, .field select:focus { border-color: #EE7623; box-shadow: 0 0 0 2px rgba(238,118,35,0.15); }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.helper { font-size: 11px; color: var(--color-text-tertiary); margin-top: 3px; }
+
+.conn-tabs { display: flex; gap: 8px; margin-top: 6px; }
+.conn-tab {
+  flex: 1; padding: 9px 0; text-align: center; font-size: 13px; font-weight: 500;
+  border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md);
+  cursor: pointer; color: var(--color-text-secondary); background: var(--color-background-primary);
+  transition: all 0.15s;
+}
+.conn-tab.active { border: 1.5px solid #EE7623; color: #EE7623; background: #FFF4EC; }
+
+.subsection { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 1rem; margin-top: 8px; }
+.subsection-label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 10px; }
+
+.pw-wrap { position: relative; }
+.pw-wrap input { padding-right: 52px; }
+.pw-toggle { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; background: none; border: none; padding: 0; color: #9EA1A2; font-size: 12px; letter-spacing: 0.03em; }
+
+.submit-btn { width: 100%; margin-top: 2rem; padding: 13px; background: #EE7623; color: white; border: none; border-radius: var(--border-radius-md); font-size: 15px; font-weight: 500; cursor: pointer; letter-spacing: 0.04em; transition: background 0.15s; }
+.submit-btn:hover:not(:disabled) { background: #C05F10; }
+.submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.error-msg { font-size: 12px; color: #E24B4A; margin-top: 6px; display: none; }
+.error-msg.visible { display: block; }
+
+.success-box { display: none; text-align: center; padding: 2.5rem 1rem; }
+.success-icon { width: 58px; height: 58px; border-radius: 50%; background: #FFF4EC; border: 2px solid #EE7623; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; }
+.success-icon svg { width: 26px; height: 26px; stroke: #EE7623; fill: none; stroke-width: 2.5; }
+.success-title { font-size: 18px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 8px; }
+.success-sub { font-size: 14px; color: var(--color-text-secondary); }

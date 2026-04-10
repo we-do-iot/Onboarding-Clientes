@@ -53,7 +53,7 @@ export function buildPayload(fields, connType) {
 const IP_FIELDS = ['ip', 'mascara', 'gateway'];
 const STORAGE_KEY = 'wedo_onboarding_draft';
 const SAVEABLE_FIELDS = ['empresa', 'nombre', 'apellido', 'email', 'telefono', 'provincia', 'ciudad', 'ip', 'mascara', 'gateway', 'ssid'];
-let currentConn = 'DHCP';
+let currentConn = null;
 
 function saveDraft() {
   const draft = { conn: currentConn };
@@ -105,8 +105,18 @@ function togglePw() {
 }
 
 async function submitForm() {
-  const required = getRequiredFields(currentConn);
+  const connTabs = document.querySelector('.conn-tabs');
   let ok = true;
+
+  if (!currentConn) {
+    connTabs.style.outline = '1.5px solid #E24B4A';
+    connTabs.style.borderRadius = 'var(--border-radius-md)';
+    ok = false;
+  } else {
+    connTabs.style.outline = '';
+  }
+
+  const required = getRequiredFields(currentConn);
 
   required.forEach(id => {
     const el = document.getElementById(id);
@@ -186,7 +196,11 @@ async function submitForm() {
 
 if (typeof document !== 'undefined') {
   document.querySelectorAll('.conn-tab').forEach(tab =>
-    tab.addEventListener('click', () => { setConn(tab.dataset.conn); saveDraft(); })
+    tab.addEventListener('click', () => {
+      setConn(tab.dataset.conn);
+      document.querySelector('.conn-tabs').style.outline = '';
+      saveDraft();
+    })
   );
   document.getElementById('pw-btn').addEventListener('click', togglePw);
   document.getElementById('submit-btn').addEventListener('click', submitForm);

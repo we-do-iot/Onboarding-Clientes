@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Alta de cliente — WeDo IoT</title>
+  <style>
+    :root {
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      --border-radius-lg: 12px;
+      --border-radius-md: 8px;
+      --color-background-primary: #ffffff;
+      --color-background-secondary: #f7f7f8;
+      --color-text-primary: #1a1a1a;
+      --color-text-secondary: #6b6f72;
+      --color-text-tertiary: #9ea1a2;
+      --color-border-tertiary: #e0e0e0;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #f0f0f0;
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 2rem 1rem;
+      font-family: var(--font-sans);
+    }
+
+    .wrap { max-width: 640px; width: 100%; padding-bottom: 2.5rem; }
+
+    .header { background: #24272A; border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0; padding: 20px 24px 18px; display: flex; align-items: center; justify-content: space-between; }
+    .logo-text { font-size: 26px; font-weight: 700; letter-spacing: 0.18em; color: #EE7623; line-height: 1; }
+    .logo-sub { font-size: 11px; color: #9EA1A2; letter-spacing: 0.12em; text-transform: uppercase; margin-top: 3px; }
+    .header-tag { font-size: 11px; color: #9EA1A2; letter-spacing: 0.08em; text-transform: uppercase; }
+
+    .body { border: 0.5px solid #E0E0E0; border-top: none; border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg); padding: 24px; background: var(--color-background-primary); }
+
+    .section-title { font-size: 11px; font-weight: 500; color: #EE7623; text-transform: uppercase; letter-spacing: 0.1em; margin: 1.75rem 0 0.75rem; padding-bottom: 6px; border-bottom: 1.5px solid #EE7623; }
+    .section-title:first-child { margin-top: 0; }
+
+    .field { margin-bottom: 1rem; }
+    .field label { display: block; font-size: 13px; color: var(--color-text-secondary); margin-bottom: 4px; }
+    .req { color: #EE7623; margin-left: 2px; }
+    .field input, .field select {
+      width: 100%; padding: 9px 11px; font-size: 14px;
+      border: 0.5px solid var(--color-border-tertiary);
+      border-radius: var(--border-radius-md);
+      background: var(--color-background-primary);
+      color: var(--color-text-primary); outline: none; transition: border-color 0.15s;
+    }
+    .field input:focus, .field select:focus { border-color: #EE7623; box-shadow: 0 0 0 2px rgba(238,118,35,0.15); }
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .helper { font-size: 11px; color: var(--color-text-tertiary); margin-top: 3px; }
+
+    .conn-tabs { display: flex; gap: 8px; margin-top: 6px; }
+    .conn-tab {
+      flex: 1; padding: 9px 0; text-align: center; font-size: 13px; font-weight: 500;
+      border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md);
+      cursor: pointer; color: var(--color-text-secondary); background: var(--color-background-primary);
+      transition: all 0.15s;
+    }
+    .conn-tab.active { border: 1.5px solid #EE7623; color: #EE7623; background: #FFF4EC; }
+
+    .subsection { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 1rem; margin-top: 8px; }
+    .subsection-label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 10px; }
+
+    .pw-wrap { position: relative; }
+    .pw-wrap input { padding-right: 52px; }
+    .pw-toggle { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; background: none; border: none; padding: 0; color: #9EA1A2; font-size: 12px; letter-spacing: 0.03em; }
+
+    .period-toggle { display: flex; gap: 0; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); overflow: hidden; margin-bottom: 14px; }
+    .period-btn { flex: 1; padding: 9px 0; text-align: center; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--color-text-secondary); background: var(--color-background-primary); border: none; transition: all 0.15s; }
+    .period-btn.active { background: #24272A; color: #EE7623; }
+
+    .lic-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .lic-card { border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 12px 14px; cursor: pointer; transition: all 0.15s; }
+    .lic-card:hover { border-color: #EE7623; }
+    .lic-card.selected { border: 1.5px solid #EE7623; background: #FFF4EC; }
+    .lic-name { font-size: 14px; font-weight: 500; color: var(--color-text-primary); }
+    .lic-card.selected .lic-name { color: #C05F10; }
+    .lic-meta { display: flex; gap: 8px; margin-top: 5px; align-items: center; }
+    .lic-badge { font-size: 11px; background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: 4px; padding: 2px 7px; color: var(--color-text-secondary); font-family: var(--font-mono); }
+    .lic-devices { font-size: 12px; color: var(--color-text-secondary); }
+    .lic-card.selected .lic-badge { background: #FFE0C2; border-color: #EE7623; color: #7A3800; }
+    .lic-card.selected .lic-devices { color: #C05F10; }
+
+    .submit-btn { width: 100%; margin-top: 2rem; padding: 13px; background: #EE7623; color: white; border: none; border-radius: var(--border-radius-md); font-size: 15px; font-weight: 500; cursor: pointer; letter-spacing: 0.04em; transition: background 0.15s; }
+    .submit-btn:hover:not(:disabled) { background: #C05F10; }
+    .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .error-msg { font-size: 12px; color: #E24B4A; margin-top: 6px; display: none; }
+    .error-msg.visible { display: block; }
+
+    .success-box { display: none; text-align: center; padding: 2.5rem 1rem; }
+    .success-icon { width: 58px; height: 58px; border-radius: 50%; background: #FFF4EC; border: 2px solid #EE7623; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; }
+    .success-icon svg { width: 26px; height: 26px; stroke: #EE7623; fill: none; stroke-width: 2.5; }
+    .success-title { font-size: 18px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 8px; }
+    .success-sub { font-size: 14px; color: var(--color-text-secondary); }
+    .lic-confirm-pill { display: inline-block; margin-top: 14px; background: #24272A; border-radius: var(--border-radius-md); padding: 8px 18px; font-size: 13px; color: #EE7623; font-family: var(--font-mono); letter-spacing: 0.04em; }
+  </style>
+</head>
+<body>
+
+<div class="wrap">
+  <h1 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;">Formulario de alta de cliente WeDo IoT</h1>
+
+  <div class="header">
+    <div>
+      <div class="logo-text">WEDO</div>
+      <div class="logo-sub">IoT Solutions</div>
+    </div>
+    <div class="header-tag">Alta de cliente</div>
+  </div>
+
+  <div class="body">
+    <div id="form-body">
+
+      <div class="section-title">Datos del cliente</div>
+
+      <div class="field">
+        <label>Empresa <span class="req">*</span></label>
+        <input type="text" id="empresa" placeholder="Ej: Acme S.A." autocomplete="organization" />
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label>Nombre <span class="req">*</span></label>
+          <input type="text" id="nombre" placeholder="Ej: Juan" autocomplete="given-name" />
+        </div>
+        <div class="field">
+          <label>Apellido <span class="req">*</span></label>
+          <input type="text" id="apellido" placeholder="Ej: Pérez" autocomplete="family-name" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Email <span class="req">*</span></label>
+        <input type="email" id="email" placeholder="usuario@empresa.com" autocomplete="email" />
+        <div class="helper">Se usará para crear el usuario propietario en la plataforma</div>
+      </div>
+
+      <div class="field">
+        <label>Teléfono <span class="req">*</span></label>
+        <input type="tel" id="telefono" placeholder="Ej: +54 11 1234-5678" autocomplete="tel" />
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label>Provincia <span class="req">*</span></label>
+          <input type="text" id="provincia" placeholder="Ej: Buenos Aires" />
+        </div>
+        <div class="field">
+          <label>Ciudad <span class="req">*</span></label>
+          <input type="text" id="ciudad" placeholder="Ej: Mar del Plata" />
+        </div>
+      </div>
+
+      <div class="section-title">Configuración del gateway</div>
+
+      <div class="field">
+        <label>Tipo de conexión <span class="req">*</span></label>
+        <div class="conn-tabs">
+          <div class="conn-tab active" data-conn="DHCP" onclick="setConn('DHCP')">ETH — DHCP</div>
+          <div class="conn-tab" data-conn="FIJA" onclick="setConn('FIJA')">ETH — IP fija</div>
+          <div class="conn-tab" data-conn="WIFI" onclick="setConn('WIFI')">WiFi</div>
+        </div>
+      </div>
+
+      <div id="ip-fields" style="display:none;">
+        <div class="subsection">
+          <div class="subsection-label">Configuración de red estática</div>
+          <div class="field">
+            <label>Dirección IP <span class="req">*</span></label>
+            <input type="text" id="ip" placeholder="Ej: 192.168.1.100" />
+          </div>
+          <div class="row2">
+            <div class="field">
+              <label>Máscara de subred <span class="req">*</span></label>
+              <input type="text" id="mascara" placeholder="Ej: 255.255.255.0" />
+            </div>
+            <div class="field">
+              <label>Puerta de enlace <span class="req">*</span></label>
+              <input type="text" id="gateway" placeholder="Ej: 192.168.1.1" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="wifi-fields" style="display:none;">
+        <div class="subsection">
+          <div class="subsection-label">Configuración WiFi</div>
+          <div class="field">
+            <label>SSID (nombre de la red) <span class="req">*</span></label>
+            <input type="text" id="ssid" placeholder="Ej: MiRed_2.4G" />
+          </div>
+          <div class="field">
+            <label>Contraseña <span class="req">*</span></label>
+            <div class="pw-wrap">
+              <input type="password" id="wifi-pass" placeholder="Contraseña de la red WiFi" />
+              <button class="pw-toggle" onclick="togglePw()" type="button" id="pw-btn">ver</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title">Suscripción</div>
+
+      <div class="period-toggle">
+        <button class="period-btn active" id="btn-anual" onclick="setPeriod('anual')">Anual</button>
+        <button class="period-btn" id="btn-mensual" onclick="setPeriod('mensual')">Mensual</button>
+      </div>
+
+      <div class="lic-grid" id="lic-grid"></div>
+
+      <div class="error-msg" id="error-msg">Por favor completá todos los campos obligatorios.</div>
+
+      <button class="submit-btn" id="submit-btn" onclick="submitForm()">Enviar alta de cliente</button>
+    </div>
+
+    <div class="success-box" id="success-box">
+      <div class="success-icon">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="success-title">¡Alta enviada!</div>
+      <div class="success-sub">El equipo WeDo va a procesar los datos y crear el usuario en la plataforma.<br>Pronto le llegará un correo a <strong id="email-confirm"></strong></div>
+      <div class="lic-confirm-pill" id="lic-confirm"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const LICENSE_CATALOG = {
+  anual: {
+    'WeDo Inicial':  { code: 'LIC10',   devices: 10 },
+    'WeDo Avanzado': { code: 'LIC20',   devices: 20 },
+    'WeDo Pro':      { code: 'LIC30',   devices: 30 },
+    'WeDo Corpo50':  { code: 'LIC50',   devices: 50 },
+    'WeDo Corpo100': { code: 'LIC100',  devices: 100 }
+  },
+  mensual: {
+    'WeDo Inicial':  { code: 'LIC101',  devices: 10 },
+    'WeDo Avanzado': { code: 'LIC201',  devices: 20 },
+    'WeDo Pro':      { code: 'LIC301',  devices: 30 },
+    'WeDo Corpo50':  { code: 'LIC501',  devices: 50 },
+    'WeDo Corpo100': { code: 'LIC1001', devices: 100 }
+  }
+};
+
+let currentConn = 'DHCP';
+let selectedLic = null;
+
+function renderLicencias(period) {
+  const grid = document.getElementById('lic-grid');
+  grid.innerHTML = '';
+  selectedLic = null;
+  Object.entries(LICENSE_CATALOG[period]).forEach(([name, info], i) => {
+    const card = document.createElement('div');
+    card.className = 'lic-card' + (i === 0 ? ' selected' : '');
+    if (i === 0) selectedLic = { name, ...info, period };
+    card.innerHTML = `<div class="lic-name">${name}</div>
+      <div class="lic-meta">
+        <span class="lic-badge">${info.code}</span>
+        <span class="lic-devices">${info.devices} disp.</span>
+      </div>`;
+    card.onclick = () => {
+      document.querySelectorAll('.lic-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      selectedLic = { name, ...info, period };
+    };
+    grid.appendChild(card);
+  });
+}
+
+function setPeriod(p) {
+  document.getElementById('btn-anual').classList.toggle('active', p === 'anual');
+  document.getElementById('btn-mensual').classList.toggle('active', p === 'mensual');
+  renderLicencias(p);
+}
+
+function setConn(type) {
+  currentConn = type;
+  document.querySelectorAll('.conn-tab').forEach(t => t.classList.toggle('active', t.dataset.conn === type));
+  document.getElementById('ip-fields').style.display = type === 'FIJA' ? 'block' : 'none';
+  document.getElementById('wifi-fields').style.display = type === 'WIFI' ? 'block' : 'none';
+}
+
+function togglePw() {
+  const inp = document.getElementById('wifi-pass');
+  const btn = document.getElementById('pw-btn');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  btn.textContent = inp.type === 'password' ? 'ver' : 'ocultar';
+}
+
+function mark(id, ok) {
+  const el = document.getElementById(id);
+  if (el) el.style.borderColor = ok ? '' : '#E24B4A';
+}
+
+async function submitForm() {
+  let ok = true;
+  ['empresa','nombre','apellido','email','telefono','provincia','ciudad'].forEach(id => {
+    const v = document.getElementById(id).value.trim();
+    mark(id, !!v);
+    if (!v) ok = false;
+  });
+  if (currentConn === 'FIJA') {
+    ['ip','mascara','gateway'].forEach(id => {
+      const v = document.getElementById(id).value.trim();
+      mark(id, !!v);
+      if (!v) ok = false;
+    });
+  }
+  if (currentConn === 'WIFI') {
+    ['ssid','wifi-pass'].forEach(id => {
+      const v = document.getElementById(id).value.trim();
+      mark(id, !!v);
+      if (!v) ok = false;
+    });
+  }
+
+  const errorMsg = document.getElementById('error-msg');
+  if (!ok) {
+    errorMsg.classList.add('visible');
+    return;
+  }
+  errorMsg.classList.remove('visible');
+
+  const g = id => document.getElementById(id).value.trim();
+
+  const payload = {
+    access_key: '63c641c8-5ae6-4cf9-9a50-0f1a2ef3c50b',
+    subject: `Alta de cliente — ${g('empresa')}`,
+    from_name: 'WeDo IoT Onboarding',
+    // Datos del cliente
+    Empresa: g('empresa'),
+    Nombre: `${g('nombre')} ${g('apellido')}`,
+    Email: g('email'),
+    Teléfono: g('telefono'),
+    Provincia: g('provincia'),
+    Ciudad: g('ciudad'),
+    // Gateway
+    'Tipo de conexión': currentConn,
+    // Suscripción
+    Licencia: selectedLic ? selectedLic.name : '',
+    Código: selectedLic ? selectedLic.code : '',
+    Dispositivos: selectedLic ? selectedLic.devices : '',
+    Período: selectedLic ? selectedLic.period : '',
+  };
+
+  if (currentConn === 'FIJA') {
+    payload['IP'] = g('ip');
+    payload['Máscara'] = g('mascara');
+    payload['Gateway'] = g('gateway');
+  }
+  if (currentConn === 'WIFI') {
+    payload['SSID'] = g('ssid');
+    payload['Contraseña WiFi'] = g('wifi-pass');
+  }
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Enviando…';
+
+  try {
+    const res = await fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      document.getElementById('email-confirm').textContent = g('email');
+      if (selectedLic) {
+        document.getElementById('lic-confirm').textContent =
+          `${selectedLic.name}  ·  ${selectedLic.code}  ·  ${selectedLic.devices} dispositivos  ·  ${selectedLic.period}`;
+      }
+      document.getElementById('form-body').style.display = 'none';
+      document.getElementById('success-box').style.display = 'block';
+    } else {
+      btn.disabled = false;
+      btn.textContent = 'Enviar alta de cliente';
+      alert('Hubo un error al enviar el formulario. Por favor intentá nuevamente.');
+    }
+  } catch {
+    btn.disabled = false;
+    btn.textContent = 'Enviar alta de cliente';
+    alert('Error de conexión. Por favor verificá tu red e intentá nuevamente.');
+  }
+}
+
+renderLicencias('anual');
+</script>
+
+</body>
+</html>

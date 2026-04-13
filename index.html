@@ -65,17 +65,18 @@
       <div class="section-title">Configuración del gateway</div>
 
       <div class="field">
-        <label>Tipo de conexión <span class="req">*</span></label>
-        <div class="conn-tabs">
+        <label>Conexión primaria <span class="req">*</span></label>
+        <div class="conn-tabs" id="primary-tabs">
           <div class="conn-tab" data-conn="DHCP">ETH — DHCP</div>
           <div class="conn-tab" data-conn="FIJA">ETH — IP fija</div>
           <div class="conn-tab" data-conn="WIFI">WiFi</div>
+          <div class="conn-tab" data-conn="4G">Chip 4G</div>
         </div>
       </div>
 
       <div id="ip-fields" style="display:none;">
         <div class="subsection">
-          <div class="subsection-label">Configuración de red estática</div>
+          <div class="subsection-label">Red estática (primaria)</div>
           <div class="field">
             <label>Dirección IP <span class="req">*</span></label>
             <input type="text" id="ip" placeholder="Ej: 192.168.1.100" />
@@ -95,7 +96,7 @@
 
       <div id="wifi-fields" style="display:none;">
         <div class="subsection">
-          <div class="subsection-label">Configuración WiFi</div>
+          <div class="subsection-label">WiFi (primaria)</div>
           <div class="field">
             <label>SSID (nombre de la red) <span class="req">*</span></label>
             <input type="text" id="ssid" placeholder="Ej: MiRed_2.4G" />
@@ -105,6 +106,54 @@
             <div class="pw-wrap">
               <input type="password" id="wifi-pass" placeholder="Contraseña de la red WiFi" />
               <button class="pw-toggle" type="button" id="pw-btn">ver</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="field" style="margin-top: 1.25rem;">
+        <label>Conexión secundaria</label>
+        <div class="conn-tabs" id="secondary-tabs">
+          <div class="conn-tab active" data-conn="NONE">Ninguna</div>
+          <div class="conn-tab" data-conn="DHCP">ETH — DHCP</div>
+          <div class="conn-tab" data-conn="FIJA">ETH — IP fija</div>
+          <div class="conn-tab" data-conn="WIFI">WiFi</div>
+          <div class="conn-tab" data-conn="4G">Chip 4G</div>
+        </div>
+      </div>
+
+      <div id="ip-fields-sec" style="display:none;">
+        <div class="subsection">
+          <div class="subsection-label">Red estática (secundaria)</div>
+          <div class="field">
+            <label>Dirección IP <span class="req">*</span></label>
+            <input type="text" id="ip-sec" placeholder="Ej: 192.168.1.100" />
+          </div>
+          <div class="row2">
+            <div class="field">
+              <label>Máscara de subred <span class="req">*</span></label>
+              <input type="text" id="mascara-sec" placeholder="Ej: 255.255.255.0" />
+            </div>
+            <div class="field">
+              <label>Puerta de enlace <span class="req">*</span></label>
+              <input type="text" id="gateway-sec" placeholder="Ej: 192.168.1.1" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="wifi-fields-sec" style="display:none;">
+        <div class="subsection">
+          <div class="subsection-label">WiFi (secundaria)</div>
+          <div class="field">
+            <label>SSID (nombre de la red) <span class="req">*</span></label>
+            <input type="text" id="ssid-sec" placeholder="Ej: MiRed_2.4G" />
+          </div>
+          <div class="field">
+            <label>Contraseña <span class="req">*</span></label>
+            <div class="pw-wrap">
+              <input type="password" id="wifi-pass-sec" placeholder="Contraseña de la red WiFi" />
+              <button class="pw-toggle" type="button" id="pw-btn-sec">ver</button>
             </div>
           </div>
         </div>

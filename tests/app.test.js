@@ -86,28 +86,56 @@ describe('validateIP', () => {
 describe('getRequiredFields', () => {
   const base = ['empresa', 'nombre', 'apellido', 'email', 'provincia', 'ciudad'];
 
-  it('returns base fields for DHCP', () => {
-    const fields = getRequiredFields('DHCP');
+  it('returns only base fields for DHCP primary + NONE secondary', () => {
+    const fields = getRequiredFields('DHCP', 'NONE');
     base.forEach(f => expect(fields).toContain(f));
     expect(fields).not.toContain('ip');
     expect(fields).not.toContain('ssid');
   });
 
-  it('includes IP fields for FIJA', () => {
-    const fields = getRequiredFields('FIJA');
-    base.forEach(f => expect(fields).toContain(f));
+  it('returns only base fields for 4G primary + NONE secondary', () => {
+    const fields = getRequiredFields('4G', 'NONE');
+    expect(fields).toEqual(base);
+  });
+
+  it('includes primary IP fields for FIJA primary', () => {
+    const fields = getRequiredFields('FIJA', 'NONE');
     expect(fields).toContain('ip');
     expect(fields).toContain('mascara');
     expect(fields).toContain('gateway');
-    expect(fields).not.toContain('ssid');
+    expect(fields).not.toContain('ip-sec');
   });
 
-  it('includes WiFi fields for WIFI', () => {
-    const fields = getRequiredFields('WIFI');
-    base.forEach(f => expect(fields).toContain(f));
+  it('includes primary WiFi fields for WIFI primary', () => {
+    const fields = getRequiredFields('WIFI', 'NONE');
     expect(fields).toContain('ssid');
     expect(fields).toContain('wifi-pass');
+  });
+
+  it('includes secondary IP fields for FIJA secondary', () => {
+    const fields = getRequiredFields('DHCP', 'FIJA');
+    expect(fields).toContain('ip-sec');
+    expect(fields).toContain('mascara-sec');
+    expect(fields).toContain('gateway-sec');
     expect(fields).not.toContain('ip');
+  });
+
+  it('includes secondary WiFi fields for WIFI secondary', () => {
+    const fields = getRequiredFields('DHCP', 'WIFI');
+    expect(fields).toContain('ssid-sec');
+    expect(fields).toContain('wifi-pass-sec');
+  });
+
+  it('combines primary and secondary required fields', () => {
+    const fields = getRequiredFields('FIJA', 'WIFI');
+    expect(fields).toContain('ip');
+    expect(fields).toContain('ssid-sec');
+    expect(fields).toContain('wifi-pass-sec');
+  });
+
+  it('adds no extra fields when secondary is 4G', () => {
+    const fields = getRequiredFields('DHCP', '4G');
+    expect(fields).toEqual(base);
   });
 });
 
@@ -124,47 +152,92 @@ describe('buildPayload', () => {
     ciudad: 'Mar del Plata',
   };
 
-  it('maps fields correctly for DHCP', () => {
-    const p = buildPayload(base, 'DHCP');
+  it('maps base fields correctly for DHCP primary', () => {
+    const p = buildPayload(base, 'DHCP', 'NONE');
     expect(p.Empresa).toBe('Acme S.A.');
     expect(p.Nombre).toBe('Juan Pérez');
     expect(p.Email).toBe('juan@acme.com');
-    expect(p.Provincia).toBe('Buenos Aires');
-    expect(p.Ciudad).toBe('Mar del Plata');
-    expect(p['Tipo de conexión']).toBe('DHCP');
+    expect(p['Conexión primaria']).toBe('ETH DHCP');
+    expect(p).not.toHaveProperty('Conexión secundaria');
+  });
+
+  it('maps 4G primary with readable label', () => {
+    const p = buildPayload(base, '4G', 'NONE');
+    expect(p['Conexión primaria']).toBe('Chip 4G');
+    expect(p).not.toHaveProperty('IP primaria');
   });
 
   it('omits Teléfono when empty', () => {
-    const p = buildPayload(base, 'DHCP');
+    const p = buildPayload(base, 'DHCP', 'NONE');
     expect(p).not.toHaveProperty('Teléfono');
   });
 
   it('includes Teléfono when provided', () => {
-    const p = buildPayload({ ...base, telefono: '+54 11 1234-5678' }, 'DHCP');
+    const p = buildPayload({ ...base, telefono: '+54 11 1234-5678' }, 'DHCP', 'NONE');
     expect(p['Teléfono']).toBe('+54 11 1234-5678');
   });
 
-  it('includes IP fields for FIJA', () => {
-    const p = buildPayload({ ...base, ip: '192.168.1.100', mascara: '255.255.255.0', gateway: '192.168.1.1' }, 'FIJA');
-    expect(p['IP']).toBe('192.168.1.100');
-    expect(p['Máscara']).toBe('255.255.255.0');
-    expect(p['Gateway']).toBe('192.168.1.1');
+  it('includes primary IP fields for FIJA primary', () => {
+    const p = buildPayload({ ...base, ip: '192.168.1.100', mascara: '255.255.255.0', gateway: '192.168.1.1' }, 'FIJA', 'NONE');
+    expect(p['IP primaria']).toBe('192.168.1.100');
+    expect(p['Máscara primaria']).toBe('255.255.255.0');
+    expect(p['Gateway primaria']).toBe('192.168.1.1');
   });
 
-  it('does not include IP fields for DHCP', () => {
-    const p = buildPayload(base, 'DHCP');
-    expect(p).not.toHaveProperty('IP');
-    expect(p).not.toHaveProperty('Máscara');
+  it('includes primary WiFi fields for WIFI primary', () => {
+    const p = buildPayload({ ...base, ssid: 'MiRed', 'wifi-pass': 'secret' }, 'WIFI', 'NONE');
+    expect(p['SSID primaria']).toBe('MiRed');
+    expect(p['Contraseña WiFi primaria']).toBe('secret');
   });
 
-  it('includes WiFi fields for WIFI', () => {
-    const p = buildPayload({ ...base, ssid: 'MiRed_2.4G', 'wifi-pass': 'secret123' }, 'WIFI');
-    expect(p['SSID']).toBe('MiRed_2.4G');
-    expect(p['Contraseña WiFi']).toBe('secret123');
+  it('omits secondary connection when NONE', () => {
+    const p = buildPayload(base, 'DHCP', 'NONE');
+    expect(p).not.toHaveProperty('Conexión secundaria');
+    expect(p).not.toHaveProperty('IP secundaria');
+    expect(p).not.toHaveProperty('SSID secundaria');
+  });
+
+  it('includes secondary label when set', () => {
+    const p = buildPayload(base, 'DHCP', '4G');
+    expect(p['Conexión secundaria']).toBe('Chip 4G');
+  });
+
+  it('includes secondary IP fields for FIJA secondary', () => {
+    const p = buildPayload(
+      { ...base, 'ip-sec': '10.0.0.1', 'mascara-sec': '255.255.255.0', 'gateway-sec': '10.0.0.254' },
+      'DHCP', 'FIJA'
+    );
+    expect(p['IP secundaria']).toBe('10.0.0.1');
+    expect(p['Máscara secundaria']).toBe('255.255.255.0');
+    expect(p['Gateway secundaria']).toBe('10.0.0.254');
+  });
+
+  it('includes secondary WiFi fields for WIFI secondary', () => {
+    const p = buildPayload(
+      { ...base, 'ssid-sec': 'BackupRed', 'wifi-pass-sec': 'backuppwd' },
+      '4G', 'WIFI'
+    );
+    expect(p['SSID secundaria']).toBe('BackupRed');
+    expect(p['Contraseña WiFi secundaria']).toBe('backuppwd');
+  });
+
+  it('handles primary FIJA + secondary WIFI combo', () => {
+    const p = buildPayload(
+      {
+        ...base,
+        ip: '192.168.1.100', mascara: '255.255.255.0', gateway: '192.168.1.1',
+        'ssid-sec': 'Backup', 'wifi-pass-sec': 'pwd',
+      },
+      'FIJA', 'WIFI'
+    );
+    expect(p['IP primaria']).toBe('192.168.1.100');
+    expect(p['SSID secundaria']).toBe('Backup');
+    expect(p['Conexión primaria']).toBe('ETH IP fija');
+    expect(p['Conexión secundaria']).toBe('WiFi');
   });
 
   it('sets subject with company name', () => {
-    const p = buildPayload(base, 'DHCP');
+    const p = buildPayload(base, 'DHCP', 'NONE');
     expect(p.subject).toBe('Alta de cliente — Acme S.A.');
   });
 });
